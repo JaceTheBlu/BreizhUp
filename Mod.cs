@@ -1,8 +1,6 @@
 using KitchenLib;
 using KitchenLib.Logging;
-using KitchenLib.Logging.Exceptions;
 using KitchenMods;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -10,13 +8,12 @@ namespace BreizhUp
 {
     public class Mod : BaseMod, IModSystem
     {
-        public const string MOD_GUID = "com.HungryDevs.breizhup";
+        public const string MOD_GUID = "com.hungrydevs.breizhup";
         public const string MOD_NAME = "BreizhUp";
         public const string MOD_VERSION = "0.1.0";
-        public const string MOD_AUTHOR = "@JaceTheBlue @aVadeleau @ncoursol";
+        public const string MOD_AUTHOR = "HungryDevs";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
-        public static AssetBundle Bundle;
         public static KitchenLogger Logger;
 
         public Mod() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
@@ -32,7 +29,6 @@ namespace BreizhUp
 
         protected override void OnPostActivate(KitchenMods.Mod mod)
         {
-            Bundle = mod.GetPacks<AssetBundleModPack>().SelectMany(e => e.AssetBundles).FirstOrDefault() ?? throw new MissingAssetBundleException(MOD_GUID);
             Logger = InitLogger();
         }
     }
