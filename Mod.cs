@@ -10,10 +10,10 @@ namespace BreizhUp
 {
     public class Mod : BaseMod, IModSystem
     {
-        public const string MOD_GUID = "com.gg-&-stromax.breizhup";
+        public const string MOD_GUID = "com.HungryDevs.breizhup";
         public const string MOD_NAME = "BreizhUp";
         public const string MOD_VERSION = "0.1.0";
-        public const string MOD_AUTHOR = "GG & Stromax";
+        public const string MOD_AUTHOR = "@JaceTheBlue @aVadeleau @ncoursol";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
         public static AssetBundle Bundle;
