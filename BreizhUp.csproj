@@ -5,16 +5,21 @@
 		<Configurations>Release;Debug</Configurations>
 		<AssemblyName>$(MSBuildProjectName)-Workshop</AssemblyName>
 		<LangVersion>latest</LangVersion>
-		<NoWarn>CS0114</NoWarn>
+		<NoWarn>CS0114;MSB3270</NoWarn>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
-	  <Compile Remove="content\**" />
-	  <EmbeddedResource Remove="content\**" />
+		<Compile Remove="content\**" />
+		<EmbeddedResource Remove="content\**" />
 	</ItemGroup>
-  
+
 	<ItemGroup>
 		<PackageReference Include="Yariazen.PlateUp.ModBuildUtilities" Version="1.10.21" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Ingredients\**" />
+		<Folder Include="Dishes\**" />
 	</ItemGroup>
 </Project>
 
