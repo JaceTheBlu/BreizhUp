@@ -11,7 +11,7 @@ namespace BreizhUp.Ingredients.Items.Cider
 {
     internal class CiderBowl : CustomItem
     {
-        public override string UniqueNameID => "CiderBowl";
+        public override string UniqueNameID => "ciderbowl";
         public override string ColourBlindTag => "CiBr";
         public override GameObject Prefab => Main.bundle.LoadAsset<GameObject>("ciderbowl");
 

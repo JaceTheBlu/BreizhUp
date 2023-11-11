@@ -11,7 +11,7 @@ namespace BreizhUp.Ingredients.Items.Cider
 {
     internal class CiderBottleFull : CustomItem
     {
-        public override string UniqueNameID => "CiderBottleFull";
+        public override string UniqueNameID => "ciderbottlefull";
         public override string ColourBlindTag => "CiBo";
         public override GameObject Prefab => Main.bundle.LoadAsset<GameObject>("ciderbottlefull");
 
@@ -23,7 +23,7 @@ namespace BreizhUp.Ingredients.Items.Cider
         {
             new Item.ItemProcess
             {
-                Duration = 5,
+                Duration = 1,
                 Process = Main.Knead,
                 Result = Main.CiderBowl,
             }

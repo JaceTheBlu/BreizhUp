@@ -14,6 +14,7 @@ using BreizhUp.Ingredients.Providers.Cider;
 using KitchenLib.Logging.Exceptions;
 using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 using System;
+using BreizhUp.Dishes.Starter.Cider;
 
 namespace BreizhUp
 {
@@ -68,6 +69,7 @@ namespace BreizhUp
 
             // Dishes
             // Starters
+            AddGameDataObject<CiderStarterDish>();
             AddGameDataObject<CiderBottleFull>();
             AddGameDataObject<CiderBowl>();
             AddGameDataObject<CiderBox>();

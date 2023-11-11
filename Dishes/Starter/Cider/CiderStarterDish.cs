@@ -16,7 +16,7 @@ namespace BreizhUp.Dishes.Starter.Cider
 {
     internal class CiderStarterDish : CustomDish
     {
-        public override string UniqueNameID => "CiderStarterDish";
+        public override string UniqueNameID => "ciderstarterdish";
         public override DishType Type => DishType.Starter;
         public override DishCustomerChange CustomerMultiplier => DishCustomerChange.SmallDecrease;
         public override CardType CardType => CardType.Default;

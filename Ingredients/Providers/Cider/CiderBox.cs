@@ -13,7 +13,7 @@ namespace BreizhUp.Ingredients.Providers.Cider
 {
     internal class CiderBox : CustomAppliance
     {
-        public override string UniqueNameID => "Cider Box";
+        public override string UniqueNameID => "ciderbox";
         public override GameObject Prefab => Main.bundle.LoadAsset<GameObject>("ciderbox");
 
         public override bool SellOnlyAsDuplicate => true;
