@@ -17,16 +17,6 @@ public class AssetBundler
     private static readonly string TEMP_BUILD_FOLDER = "Temp/AssetBundles";
 
     /// <summary>
-    /// Name of the output bundle file. This needs to match the bundle that you tag your assets with.
-    /// </summary>
-    private static readonly string BUNDLE_FILENAME = "mod.assets";
-
-    /// <summary>
-    /// The output folder to place the completed bundle in.
-    /// </summary>
-    private static readonly string OUTPUT_FOLDER = "content";
-
-    /// <summary>
     /// The folders to not search for assets in.
     /// </summary>
     private static readonly string[] EXCLUDED_FOLDERS = new string[] { "Assets/Editor", "Packages" };
@@ -42,39 +32,55 @@ public class AssetBundler
     private int NumWarnings;
 
     /// <summary>
+    /// Name of the output bundle file. This needs to match the bundle that you tag your assets with.
+    /// </summary>
+    private readonly string _bundleFileName = "mod.assets";
+
+    /// <summary>
+    /// The output folder to place the completed bundle in.
+    /// </summary>
+    private readonly string _outputFolder = "content";
+
+    /// <summary>
     /// Number of warnings encountered.
     /// </summary>
     private string GeneratedAssetBundleTag;
 
-    [MenuItem("PlateUp!/Build Asset Bundle _F6")]
-    public static void BuildAssetBundle()
+    public AssetBundler(
+        string bundleFileName,
+        string outputFolder
+        )
     {
-        Debug.LogFormat("Creating 1\"{0}\" AssetBundle...", BUNDLE_FILENAME);
+        _bundleFileName = bundleFileName;
+        _outputFolder = outputFolder;
+    }
 
-		AssetBundler bundler = new AssetBundler();
+    public void BuildAssetBundle()
+    {
+        Debug.LogFormat("Creating 1\"{0}\" AssetBundle...", _bundleFileName);
 
-        if (Application.platform == RuntimePlatform.OSXEditor) bundler.Target = BuildTarget.StandaloneOSX;
+        if (Application.platform == RuntimePlatform.OSXEditor) Target = BuildTarget.StandaloneOSX;
 
         // Randomly generate the resulting name of the asset bundle
-        bundler.GenerateRandomAssetBundleTag();
+        GenerateRandomAssetBundleTag();
 
         bool success = false;
         try
         {
             // Check for assets
-            bundler.WarnIfAssetsAreNotTagged();
-            bundler.WarnIfZeroAssetsAreTagged();
-            bundler.WarnIfMeshAssetsAreTagged();
+            WarnIfAssetsAreNotTagged();
+            WarnIfZeroAssetsAreTagged();
+            WarnIfMeshAssetsAreTagged();
             // bundler.WarnIfMaterialsAreTaggedOrIncluded();
 
             // Delete the contents of OUTPUT_FOLDER
-            bundler.CleanBuildFolder();
+            CleanBuildFolder();
 
             // Temporarily move the tagged assets to the temporary tag
-            bundler.MoveAssetsToTemporaryAssetBundle();
+            MoveAssetsToTemporaryAssetBundle();
 
             // Lastly, create the asset bundle itself and copy it to the output folder
-            bundler.CreateAssetBundle();
+            CreateAssetBundle();
 
             success = true;
         }
@@ -84,12 +90,12 @@ public class AssetBundler
         }
 
         // Return assets to the original asset bundle tag
-        bundler.RestoreAssetBundleTags();
+        RestoreAssetBundleTags();
         AssetDatabase.RemoveUnusedAssetBundleNames();
 
         if (success)
         {
-            Debug.LogFormat("[{0}] Build complete with {1} warnings! Output: {2} (temporary ID: {3})", DateTime.Now.ToLocalTime(), bundler.NumWarnings, OUTPUT_FOLDER + "/" + BUNDLE_FILENAME, bundler.GeneratedAssetBundleTag);
+            Debug.LogFormat("[{0}] Build complete with {1} warnings! Output: {2} (temporary ID: {3})", DateTime.Now.ToLocalTime(), NumWarnings, _outputFolder + "/" + _bundleFileName, GeneratedAssetBundleTag);
         }
     }
 
@@ -107,7 +113,7 @@ public class AssetBundler
     /// </summary>
     private void MoveAssetsToTemporaryAssetBundle()
     {
-        SubstituteAssetBundleTags(BUNDLE_FILENAME, GeneratedAssetBundleTag);
+        SubstituteAssetBundleTags(_bundleFileName, GeneratedAssetBundleTag);
     }
 
     /// <summary>
@@ -115,7 +121,7 @@ public class AssetBundler
     /// </summary>
     private void RestoreAssetBundleTags()
     {
-        SubstituteAssetBundleTags(GeneratedAssetBundleTag, BUNDLE_FILENAME);
+        SubstituteAssetBundleTags(GeneratedAssetBundleTag, _bundleFileName);
     }
 
     /// <summary>
@@ -139,14 +145,14 @@ public class AssetBundler
     /// </summary>
     protected void CleanBuildFolder()
     {
-        Debug.LogFormat("Cleaning {0}...", OUTPUT_FOLDER);
+        Debug.LogFormat("Cleaning {0}...", _outputFolder);
 
-        if (Directory.Exists(OUTPUT_FOLDER))
+        if (Directory.Exists(_outputFolder))
         {
-            Directory.Delete(OUTPUT_FOLDER, true);
+            Directory.Delete(_outputFolder, true);
         }
 
-        Directory.CreateDirectory(OUTPUT_FOLDER);
+        Directory.CreateDirectory(_outputFolder);
     }
 
     /// <summary>
@@ -175,7 +181,7 @@ public class AssetBundler
         // We are only interested in the BUNDLE_FILENAME bundle (and not any extra AssetBundle or the manifest files
         // that Unity makes), so just copy that to the final output folder
         string srcPath = Path.Combine(TEMP_BUILD_FOLDER, GeneratedAssetBundleTag);
-        string destPath = Path.Combine(OUTPUT_FOLDER, BUNDLE_FILENAME);
+        string destPath = Path.Combine(_outputFolder, _bundleFileName);
         File.Copy(srcPath, destPath, true);
     }
 
@@ -212,9 +218,9 @@ public class AssetBundler
             }
 
             var importer = AssetImporter.GetAtPath(path);
-            if (!importer.assetBundleName.Equals(BUNDLE_FILENAME))
+            if (!importer.assetBundleName.Equals(_bundleFileName))
             {
-                Debug.LogWarningFormat("Asset \"{0}\" is not tagged with \"{1}\" and will not be included in the AssetBundle!", path, BUNDLE_FILENAME);
+                Debug.LogWarningFormat("Asset \"{0}\" is not tagged with \"{1}\" and will not be included in the AssetBundle!", path, _bundleFileName);
                 ++NumWarnings;
             }
         }
@@ -225,10 +231,10 @@ public class AssetBundler
     /// </summary>
     protected void WarnIfZeroAssetsAreTagged()
     {
-        string[] assetsInBundle = AssetDatabase.FindAssets($"{ASSET_SEARCH_QUERY},b:{BUNDLE_FILENAME}");
+        string[] assetsInBundle = AssetDatabase.FindAssets($"{ASSET_SEARCH_QUERY},b:{_bundleFileName}");
         if (assetsInBundle.Length == 0)
         {
-            throw new Exception(string.Format("No assets have been tagged for inclusion in the {0} AssetBundle.", BUNDLE_FILENAME));
+            throw new Exception(string.Format("No assets have been tagged for inclusion in the {0} AssetBundle.", _bundleFileName));
         }
     }
 
@@ -237,7 +243,7 @@ public class AssetBundler
     /// </summary>
     protected void WarnIfMeshAssetsAreTagged()
     {
-        string[] assetGUIDs = AssetDatabase.FindAssets($"t:mesh,b:{BUNDLE_FILENAME}");
+        string[] assetGUIDs = AssetDatabase.FindAssets($"t:mesh,b:{_bundleFileName}");
         foreach (var assetGUID in assetGUIDs)
         {
             string path = AssetDatabase.GUIDToAssetPath(assetGUID);
@@ -246,7 +252,7 @@ public class AssetBundler
                 continue;
             }
 
-            Debug.LogWarningFormat("Mesh asset \"{0}\" is tagged for inclusion in the {1} AssetBundle! This is likely a mistake. You should include a prefab instead.", path, BUNDLE_FILENAME);
+            Debug.LogWarningFormat("Mesh asset \"{0}\" is tagged for inclusion in the {1} AssetBundle! This is likely a mistake. You should include a prefab instead.", path, _bundleFileName);
             ++NumWarnings;
         }
     }
@@ -257,7 +263,7 @@ public class AssetBundler
     protected void WarnIfMaterialsAreTaggedOrIncluded()
     {
         // Check for directly tagged materials
-        string[] assetGUIDs = AssetDatabase.FindAssets($"t:material,b:{BUNDLE_FILENAME}");
+        string[] assetGUIDs = AssetDatabase.FindAssets($"t:material,b:{_bundleFileName}");
         foreach (var assetGUID in assetGUIDs)
         {
             string path = AssetDatabase.GUIDToAssetPath(assetGUID);
@@ -266,12 +272,12 @@ public class AssetBundler
                 continue;
             }
 
-            Debug.LogWarningFormat("Material asset \"{0}\" is tagged for inclusion in the {1} AssetBundle! This is likely a mistake. You should use generate materials using the vanilla shaders instead.", path, BUNDLE_FILENAME);
+            Debug.LogWarningFormat("Material asset \"{0}\" is tagged for inclusion in the {1} AssetBundle! This is likely a mistake. You should use generate materials using the vanilla shaders instead.", path, _bundleFileName);
             ++NumWarnings;
         }
 
         // Check for materials assigned to prefabs
-        assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{BUNDLE_FILENAME}");
+        assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{_bundleFileName}");
         foreach (var assetGUID in assetGUIDs)
         {
             string path = AssetDatabase.GUIDToAssetPath(assetGUID);
@@ -300,15 +306,9 @@ public class AssetBundler
         return GetGameObjectPath(current.parent) + "/" + current.name;
     }
 
-    [MenuItem("PlateUp!/Preparation/Strip Materials From Prefabs")]
-    public static void RemoveAllPrefabMaterials()
+    public void RemoveAllPrefabMaterials()
     {
-        if (!EditorUtility.DisplayDialog("Confirm", "Stripping materials from prefabs is an irreversible process. Perform at your own risk.", "Proceed", "Cancel"))
-        {
-            return;
-        }
-
-        string[] assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{BUNDLE_FILENAME}");
+        string[] assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{_bundleFileName}");
         foreach (var assetGUID in assetGUIDs)
         {
             string path = AssetDatabase.GUIDToAssetPath(assetGUID);
@@ -332,17 +332,9 @@ public class AssetBundler
         Debug.LogFormat("[{0}] Done stripping materials.", DateTime.Now.ToLocalTime());
     }
 
-
-
-    [MenuItem("PlateUp!/Preparation/Set Prefab Materials to Default")]
-    public static void SetAllPrefabMaterialsToDefault()
+    public void SetAllPrefabMaterialsToDefault()
     {
-        if (!EditorUtility.DisplayDialog("Confirm", "Changing the materials of prefabs is an irreversible process. Perform at your own risk.", "Proceed", "Cancel"))
-        {
-            return;
-        }
-
-        string[] assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{BUNDLE_FILENAME}");
+        string[] assetGUIDs = AssetDatabase.FindAssets($"t:prefab,b:{_bundleFileName}");
         foreach (var assetGUID in assetGUIDs)
         {
             string path = AssetDatabase.GUIDToAssetPath(assetGUID);
